@@ -1,11 +1,16 @@
 {
     "author": "volksen",
-    "dependencies": {},
+    "dependencies": {
+        "@moddable/pebbleproxy": "^0.1.8"
+    },
     "keywords": [
         "pebble-app"
     ],
     "name": "a-rainy-face",
     "pebble": {
+        "capabilities": [
+            "location"
+        ],
         "displayName": "A Rainy Face",
         "enableMultiJS": true,
         "messageKeys": [],

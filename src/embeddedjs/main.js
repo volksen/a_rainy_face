@@ -2,6 +2,8 @@ import Poco from "commodetto/Poco";
 import parseBMF from "commodetto/parseBMF";
 import parseRLE from "commodetto/parseRLE";
 import Battery from "embedded:sensor/Battery";
+import Location from "embedded:sensor/Location";
+
 
 const render = new Poco(screen);
 
@@ -15,8 +17,8 @@ function getFont(name, size) {
 // Fonts
 const timeFont = getFont("Jersey10-Regular", 64);
 const dateFont = getFont("Jersey10-Regular", 32);
-//const timeFont = new render.Font("Bitham-Bold", 64);
-//const dateFont = new render.Font("Gothic-Bold", 32);
+//const timeFont = new render.Font("Bitham-Bold", 42);
+//const dateFont = new render.Font("Gothic-Bold", 24);
 const smallFont = new render.Font("Gothic-Regular", 18);
 
 // Colors
@@ -39,6 +41,9 @@ const dateY = timeY + timeFont.height;
 // Store latest time for redraws triggered by battery/connection changes
 let lastDate = new Date();
 
+// weather
+let weather = null;
+
 // Battery state
 let batteryPercent = 100;
 
@@ -59,6 +64,65 @@ function checkConnection() {
 }
 watch.addEventListener("connected", checkConnection);
 checkConnection();
+
+//location
+let location = null;
+
+function requestLocation() {
+    location = new Location({
+        onSample() {
+            const sample = this.sample();
+            console.log("Got location: " + sample.latitude + ", " + sample.longitude);
+            this.close();
+            fetchWeather(sample.latitude, sample.longitude);
+        }
+    });
+}
+
+function getWeatherDescription(code) {
+    if (code === 0) return "Klar";
+    if (code <= 3) return "Bewölkt";
+    if (code <= 48) return Nebel;
+    if (code <= 55) return "Nieselregen";
+    if (code <= 57) return "Gefrierender Nieselregen";
+    if (code <= 65) return "Regen";
+    if (code <= 67) return "Gefrierender Regen";
+    if (code <= 75) return "Schnee";
+    if (code <= 77) return "Schneegraupel";
+    if (code <= 82) return "Regen-Schauer";
+    if (code <= 86) return "Schnee Schauer";
+    if (code === 95) return "Gewitter";
+    if (code <= 99) return "Gewitter";
+    return "Unknown";
+}
+
+async function fetchWeather(latitude, longitude) {
+    try {
+        const url = new URL("http://api.open-meteo.com/v1/forecast");
+        url.search = new URLSearchParams({
+            latitude,
+            longitude,
+            current: "temperature_2m,weather_code"
+        });
+
+        console.log("Fetching weather...");
+        const response = await fetch(url);
+        const data = await response.json();
+
+        weather = {
+            temp: Math.round(data.current.temperature_2m),
+            conditions: getWeatherDescription(data.current.weather_code)
+        };
+
+        console.log("Weather: " + weather.temp + "C, " + weather.conditions);
+        drawScreen();
+
+    } catch (e) {
+        console.log("Weather fetch error: " + e);
+    }
+}
+
+
 
 function drawBatteryBar() {
     const barWidth = (render.width / 2) | 0;
@@ -124,8 +188,29 @@ function drawScreen(event) {
     render.drawText(dateStr, dateFont, white,
         (render.width - width) / 2, dateY);
 
+    // weather
+    // Draw weather at bottom
+    const weatherY = render.height - smallFont.height -
+        (render.height < 180 ? 6 : 20);
+    if (weather) {
+        const weatherStr = `${weather.temp}°C ${weather.conditions}`;
+        width = render.getTextWidth(weatherStr, smallFont);
+        render.drawText(weatherStr, smallFont, white,
+            (render.width - width) / 2, weatherY);
+    } else {
+        const msg = "Loading...";
+        width = render.getTextWidth(msg, smallFont);
+        render.drawText(msg, smallFont, white,
+            (render.width - width) / 2, weatherY);
+    }
+
+
     render.end();
 }
+
+// Update weather each hour
+watch.addEventListener("hourchange", requestLocation);
+
 
 // Update every minute (fires immediately when registered)
 watch.addEventListener("minutechange", drawScreen);
