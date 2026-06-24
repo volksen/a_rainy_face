@@ -1,12 +1,12 @@
 {
-    "author": "MakeAwesomeHappen",
+    "author": "volksen",
     "dependencies": {},
     "keywords": [
         "pebble-app"
     ],
-    "name": "watchface-tutorial",
+    "name": "a-rainy-face",
     "pebble": {
-        "displayName": "Tutorial Watchface",
+        "displayName": "A Rainy Face",
         "enableMultiJS": true,
         "messageKeys": [],
         "projectType": "moddable",
@@ -18,10 +18,10 @@
             "emery",
             "gabbro"
         ],
-        "uuid": "df69bbb0-b51f-4007-a67a-84479472e7bf",
+        "uuid": "05c3e2b9-799b-47ae-9ddc-73b70742b039",
         "watchapp": {
             "watchface": true
         }
     },
-    "version": "1.0.0"
+    "version": "0.0.1"
 }

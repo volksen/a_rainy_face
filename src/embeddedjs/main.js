@@ -11,9 +11,9 @@ const black = render.makeColor(0, 0, 0);
 const white = render.makeColor(255, 255, 255);
 
 // Day and month names for date formatting
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DAYS = ["Son", "Mon", "Die", "Mit", "Don", "Fre", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+                "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 
 function draw(event) {
     const now = event.date;
@@ -35,7 +35,7 @@ function draw(event) {
     // Format date as "Mon Jan 01"
     const dayName = DAYS[now.getDay()];
     const monthName = MONTHS[now.getMonth()];
-    const dateStr = `${dayName} ${monthName} ${String(now.getDate()).padStart(2, "0")}`;
+    const dateStr = `${dayName} ${String(now.getDate()).padStart(2, "0")}. ${monthName}`;
 
     // Draw date below the time
     width = render.getTextWidth(dateStr, dateFont);
