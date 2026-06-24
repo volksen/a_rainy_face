@@ -208,9 +208,10 @@ function drawScreen(event) {
     render.end();
 }
 
-// Update weather each hour
-watch.addEventListener("hourchange", requestLocation);
-
 
 // Update every minute (fires immediately when registered)
 watch.addEventListener("minutechange", drawScreen);
+
+
+// Update weather each hour
+watch.addEventListener("hourchange", requestLocation);
