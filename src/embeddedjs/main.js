@@ -13,10 +13,10 @@ function getFont(name, size) {
 }
 
 // Fonts
-//const timeFont = getFont("Jersey10-Regular", 64);
-//const dateFont = getFont("Jersey10-Regular", 32);
-const timeFont = new render.Font("Bitham-Bold", 64);
-const dateFont = new render.Font("Gothic-Bold", 32);
+const timeFont = getFont("Jersey10-Regular", 64);
+const dateFont = getFont("Jersey10-Regular", 32);
+//const timeFont = new render.Font("Bitham-Bold", 64);
+//const dateFont = new render.Font("Gothic-Bold", 32);
 const smallFont = new render.Font("Gothic-Regular", 18);
 
 // Colors
