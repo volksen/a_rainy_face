@@ -4,5 +4,21 @@
 	],
 	"modules": {
 		"*": "./main.js"
-	}
+	},
+  "resources": {
+    "*-alpha": [
+      {
+        "source": "./assets/Jersey10-Regular",
+        "size": 64,
+        "monochrome": true,
+        "blocks": ["Basic Latin"]
+      },
+      {
+        "source": "./assets/Jersey10-Regular",
+        "size": 32,
+        "monochrome": true,
+        "blocks": ["Basic Latin"]
+      }
+    ]
+  }
 }
