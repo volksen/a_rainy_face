@@ -82,7 +82,7 @@ function requestLocation() {
 function getWeatherDescription(code) {
     if (code === 0) return "Klar";
     if (code <= 3) return "Bewölkt";
-    if (code <= 48) return Nebel;
+    if (code <= 48) return "Nebel";
     if (code <= 55) return "Nieselregen";
     if (code <= 57) return "Gefrierender Nieselregen";
     if (code <= 65) return "Regen";
@@ -110,7 +110,7 @@ async function fetchWeather(latitude, longitude) {
         const data = await response.json();
 
         weather = {
-            temp: Math.round(data.current.temperature_2m),
+            temp: data.current.temperature_2m,
             conditions: getWeatherDescription(data.current.weather_code)
         };
 
