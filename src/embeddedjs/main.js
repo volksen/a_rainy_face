@@ -46,6 +46,10 @@ let weather = null;
 let latitude = null;
 let longitude = null;
 
+// Connection state
+let isConnected = false;
+let pebbleKitJSConnected = false;
+
 // Battery state
 let batteryPercent = 100;
 
@@ -57,30 +61,54 @@ const battery = new Battery({
 });
 batteryPercent = battery.sample().percent;
 
-// Connection state
-let isConnected = true;
 
-function checkConnection() {
-    isConnected = watch.connected.app;
-    drawScreen();
-}
-watch.addEventListener("connected", checkConnection);
-checkConnection();
 
 //location
 let location = null;
 
 function requestLocation() {
-    location = new Location({
-        onSample() {
-            const sample = this.sample();
-            console.log("Got location: " + sample.latitude + ", " + sample.longitude);
-            this.close();
-            fetchWeather(sample.latitude, sample.longitude);
-        }
-    });
-}
+    // Ensure both the app and PebbleKitJS proxy are connected before requesting location/weather
+    if (!isConnected || !pebbleKitJSConnected) {
+        console.log("Skipping location request: Phone or PebbleKitJS not connected.");
+        return;
+    }
 
+    try {
+        console.log("Initializing location sensor...");
+        location = new Location({
+            onSample() {
+                try {
+                    const sample = this.sample();
+
+                    // Guard against empty/null samples while the sensor is warming up
+                    if (!sample || sample.latitude === undefined || sample.longitude === undefined) {
+                        console.log("Location event fired, but no valid coordinates yet. Waiting...");
+                        return;
+                    }
+
+                    console.log("Got location: " + sample.latitude + ", " + sample.longitude);
+
+                    const lat = sample.latitude;
+                    const lon = sample.longitude;
+
+                    // Safely close the sensor using the outer reference, then nullify it
+                    if (location) {
+                        location.close();
+                        location = null;
+                    }
+
+                    // Trigger the weather update
+                    fetchWeather(lat, lon);
+
+                } catch (callbackError) {
+                    console.log("Error inside onSample callback: " + callbackError);
+                }
+            }
+        });
+    } catch (initError) {
+        console.log("Error initializing Location sensor: " + initError);
+    }
+}
 function getWeatherDescription(code) {
     if (code === 0) return "Klar";
     if (code <= 3) return "Bewölkt";
@@ -99,11 +127,16 @@ function getWeatherDescription(code) {
 }
 
 async function fetchWeather(latitude, longitude) {
+    // Network requests explicitly require the PebbleKitJS proxy to be ready
+    if (!pebbleKitJSConnected) {
+        console.log("Cannot fetch weather: PebbleKitJS proxy not connected.");
+        return;
+    }
     try {
-        const url = new URL("http://api.open-meteo.com/v1/forecast");
+        const url = new URL("https://api.open-meteo.com/v1/forecast");
         url.search = new URLSearchParams({
-            latitude,
-            longitude,
+            latitude: latitude,
+            longitude: longitude,
             current: "temperature_2m,weather_code"
         });
 
@@ -209,6 +242,25 @@ function drawScreen(event) {
     render.end();
 }
 
+
+
+function checkConnection() {
+    isConnected = watch.connected.app;
+    pebbleKitJSConnected = watch.connected.pebblekit;
+
+    console.log("App connected: " + isConnected);
+    console.log("PebbleKitJS connected: " + pebbleKitJSConnected);
+
+    // NEW: If PebbleKitJS just connected and we don't have weather yet, fetch it!
+    if (pebbleKitJSConnected && weather === null) {
+        console.log("Proxy ready! Fetching initial weather...");
+        requestLocation();
+    }
+
+    drawScreen();
+}
+watch.addEventListener("connected", checkConnection);
+checkConnection();
 
 // Update every minute (fires immediately when registered)
 watch.addEventListener("minutechange", drawScreen);
