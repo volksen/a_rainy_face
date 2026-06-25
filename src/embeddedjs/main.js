@@ -43,6 +43,8 @@ let lastDate = new Date();
 
 // weather
 let weather = null;
+let latitude = null;
+let longitude = null;
 
 // Battery state
 let batteryPercent = 100;
@@ -190,8 +192,7 @@ function drawScreen(event) {
 
     // weather
     // Draw weather at bottom
-    const weatherY = render.height - smallFont.height -
-        (render.height < 180 ? 6 : 20);
+    const weatherY = render.height - smallFont.height -  (render.height < 180 ? 6 : 20);
     if (weather) {
         const weatherStr = `${weather.temp}°C ${weather.conditions}`;
         width = render.getTextWidth(weatherStr, smallFont);
