@@ -1,7 +1,8 @@
 {
     "author": "volksen",
     "dependencies": {
-        "@moddable/pebbleproxy": "^0.1.8"
+        "@moddable/pebbleproxy": "^0.1.5",
+        "@rebble/clay": "^1.0.8"
     },
     "keywords": [
         "pebble-app"
