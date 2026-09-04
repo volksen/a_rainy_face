@@ -9,15 +9,22 @@
     "name": "a-rainy-face",
     "pebble": {
         "capabilities": [
-            "location"
+            "location",
+            "configurable"
         ],
         "displayName": "A Rainy Face",
         "enableMultiJS": true,
-        "messageKeys": [],
-        "projectType": "moddable",
+        "messageKeys": [
+            "BackgroundColor",
+            "TextColor",
+            "TemperatureUnit",
+            "ShowDate",
+            "HourFormat"
+        ],
         "resources": {
             "media": []
         },
+        "projectType": "moddable",
         "sdkVersion": "3",
         "targetPlatforms": [
             "emery",
